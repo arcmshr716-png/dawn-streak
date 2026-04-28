@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dawn Streak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+
+    <div class="notif-banner hidden" id="notifBanner">
+      <span>Enable notifications for alarm alerts</span>
+      <button onclick="enableNotifications()">Enable</button>
+    </div>
+
+    <header class="header">
+      <div class="stat-box">
+        <div class="stat-number accent" id="streakNumber">0</div>
+        <div class="stat-label">day streak</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number dim" id="bestNumber">0</div>
+        <div class="stat-label">best</div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="time-display" id="clock">--:--:--</div>
+      <div class="alarm-indicator">
+        <div class="alarm-dot" id="alarmDot"></div>
+        <span class="alarm-time-label">alarm set for 06:00</span>
+      </div>
+    </main>
+
+    <section class="history-section">
+      <div class="history-header">
+        <span class="history-title">Record</span>
+        <span class="total-count" id="totalCount">0 days total</span>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state">No records yet.<br>Rise at 6AM to start your streak.</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <button class="test-btn" onclick="testAlarm()">Test Alarm</button>
+    </footer>
+
+  </div>
+
+  <div class="alarm-screen" id="alarmScreen">
+    <div class="alarm-ring-wrap">
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+      <button class="rise-btn" onclick="stopAlarm()">RISE</button>
+    </div>
+    <p class="alarm-msg">Good morning</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
