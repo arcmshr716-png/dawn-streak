@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,18 +13,19 @@
   <div class="container">
 
     <div class="notif-banner hidden" id="notifBanner">
-      <span>Enable notifications for alarm alerts</span>
-      <button onclick="enableNotifications()">Enable</button>
+      <span>アラーム通知を有効にする</span>
+      <button onclick="enableNotifications()">有効にする</button>
     </div>
 
     <header class="header">
       <div class="stat-box">
         <div class="stat-number accent" id="streakNumber">0</div>
-        <div class="stat-label">day streak</div>
+        <div class="stat-label">日連続</div>
+        <div class="milestone-label" id="milestoneLabel"></div>
       </div>
       <div class="stat-box">
         <div class="stat-number dim" id="bestNumber">0</div>
-        <div class="stat-label">best</div>
+        <div class="stat-label">ベスト</div>
       </div>
     </header>
 
@@ -32,22 +33,22 @@
       <div class="time-display" id="clock">--:--:--</div>
       <div class="alarm-indicator">
         <div class="alarm-dot" id="alarmDot"></div>
-        <span class="alarm-time-label">alarm set for 06:00</span>
+        <span class="alarm-time-label">06:00 アラーム設定中</span>
       </div>
     </main>
 
     <section class="history-section">
       <div class="history-header">
-        <span class="history-title">Record</span>
-        <span class="total-count" id="totalCount">0 days total</span>
+        <span class="history-title">記録</span>
+        <span class="total-count" id="totalCount">合計 0 日</span>
       </div>
       <div class="history-list" id="historyList">
-        <div class="empty-state">No records yet.<br>Rise at 6AM to start your streak.</div>
+        <div class="empty-state">まだ記録がありません。<br>6時に起きてストリークを始めよう。</div>
       </div>
     </section>
 
     <footer class="footer">
-      <button class="test-btn" onclick="testAlarm()">Test Alarm</button>
+      <button class="test-btn" onclick="testAlarm()">テスト</button>
     </footer>
 
   </div>
@@ -59,7 +60,7 @@
       <div class="ring ring-3"></div>
       <button class="rise-btn" onclick="stopAlarm()">RISE</button>
     </div>
-    <p class="alarm-msg">Good morning</p>
+    <p class="alarm-msg">おはよう</p>
   </div>
 
   <script src="app.js"></script>
