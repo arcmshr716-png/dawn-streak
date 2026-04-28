@@ -6,6 +6,8 @@ let alarmActive = false;
 let alarmBeepInterval = null;
 let audioCtx = null;
 
+// --- Storage ---
+
 function getRecords() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -28,6 +30,8 @@ function toDateString(date) {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+// --- Streak ---
 
 function calculateStreak(records) {
   if (!records.length) return 0;
@@ -64,6 +68,24 @@ function calculateBest(records) {
   return best;
 }
 
+function getStreakLevel(streak) {
+  if (streak >= 30) return 4;
+  if (streak >= 14) return 3;
+  if (streak >= 7)  return 2;
+  if (streak >= 1)  return 1;
+  return 0;
+}
+
+function getMilestoneLabel(streak) {
+  if (streak >= 30) return '1ヶ月達成';
+  if (streak >= 14) return '2週間達成';
+  if (streak >= 7)  return '1週間達成';
+  if (streak >= 3)  return '継続中';
+  return '';
+}
+
+// --- Clock ---
+
 function updateClock() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2, '0');
@@ -77,6 +99,8 @@ function updateClock() {
     }
   }
 }
+
+// --- Audio ---
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -110,13 +134,15 @@ function stopAlarmSound() {
   }
 }
 
+// --- Alarm ---
+
 function triggerAlarm() {
   alarmActive = true;
   document.getElementById('alarmScreen').classList.add('active');
   document.getElementById('alarmDot').style.background = 'var(--alarm)';
   startAlarmSound();
   if (Notification.permission === 'granted') {
-    new Notification('Dawn Streak', { body: 'Time to rise! 🌅' });
+    new Notification('Dawn Streak', { body: '起きる時間です！🌅' });
   }
 }
 
@@ -127,52 +153,87 @@ function stopAlarm() {
   stopAlarmSound();
   const today = toDateString(new Date());
   saveRecord(today);
-  updateUI();
+  flashScreen();
+  updateUI(true);
 }
 
 function testAlarm() {
   triggerAlarm();
 }
 
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+// --- Animations ---
+
+function flashScreen() {
+  const div = document.createElement('div');
+  div.className = 'flash-overlay';
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 600);
 }
 
-function updateUI() {
+function popStreakNumber() {
+  const el = document.getElementById('streakNumber');
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+}
+
+// --- UI ---
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  const wday = weekdays[d.getDay()];
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${month}月${day}日（${wday}）`;
+}
+
+function updateUI(animate = false) {
   const records = getRecords();
   const streak = calculateStreak(records);
   const best = calculateBest(records);
+  const level = getStreakLevel(streak);
 
-  document.getElementById('streakNumber').textContent = streak;
+  const streakEl = document.getElementById('streakNumber');
+  streakEl.textContent = streak;
+  streakEl.className = 'stat-number';
+  streakEl.classList.add(level >= 2 ? `level-${level}` : 'accent');
+  if (animate) popStreakNumber();
+
+  const milestoneEl = document.getElementById('milestoneLabel');
+  milestoneEl.textContent = getMilestoneLabel(streak);
+  milestoneEl.className = 'milestone-label' + (level >= 2 ? ` level-${level}` : '');
+
   document.getElementById('bestNumber').textContent = best;
-  document.getElementById('totalCount').textContent =
-    `${records.length} day${records.length !== 1 ? 's' : ''} total`;
+  document.getElementById('totalCount').textContent = `合計 ${records.length} 日`;
 
   const today = toDateString(new Date());
   const sorted = [...records].sort().reverse().slice(0, 10);
   const list = document.getElementById('historyList');
 
   if (!sorted.length) {
-    list.innerHTML = '<div class="empty-state">No records yet.<br>Rise at 6AM to start your streak.</div>';
+    list.innerHTML = '<div class="empty-state">まだ記録がありません。<br>6時に起きてストリークを始めよう。</div>';
     return;
   }
 
   list.innerHTML = sorted.map((d, i) => {
     const isToday = d === today;
-    const showBadge = i === 0 && streak > 0;
+    const itemStreak = streak - i;
+    const itemLevel = getStreakLevel(itemStreak > 0 ? itemStreak : 1);
     return `
       <div class="history-item">
         <span class="history-date">
-          ${formatDate(d)}${isToday ? ' <span class="history-today">— Today</span>' : ''}
+          ${formatDate(d)}${isToday ? ' <span class="history-today">今日</span>' : ''}
         </span>
         <div class="history-right">
-          ${showBadge ? `<span class="streak-badge">${streak} day streak</span>` : ''}
+          <span class="streak-badge level-${itemLevel}">${itemStreak > 0 ? itemStreak : 1}日目</span>
           <span class="check-mark">✓</span>
         </div>
       </div>`;
   }).join('');
 }
+
+// --- Notifications ---
 
 function requestNotificationPermission() {
   if ('Notification' in window && Notification.permission === 'default') {
@@ -186,6 +247,8 @@ function enableNotifications() {
   });
 }
 
+// --- Missed alarm check ---
+
 function checkMissedAlarm() {
   const now = new Date();
   const h = now.getHours();
@@ -195,6 +258,8 @@ function checkMissedAlarm() {
     }
   }
 }
+
+// --- Init ---
 
 function init() {
   updateUI();
